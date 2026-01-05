@@ -30,11 +30,9 @@ manually. Note that changing a UID can be unsafe if files on the system are
 still owned by the original UID: those files may become accessible to a
 different account that is later assigned that UID.
 
-This command requires root privileges.
-
-Examples:
-  authctl user set-uid john 15000
-  authctl user set-uid alice 20000`,
+This command requires root privileges.`,
+	Example: `  # Set the UID of user "alice" to 15000
+  authctl user set-uid alice 15000`,
 	Args:              cobra.ExactArgs(2),
 	ValidArgsFunction: setUIDCompletionFunc,
 	RunE: func(cmd *cobra.Command, args []string) error {

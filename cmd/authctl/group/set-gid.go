@@ -31,11 +31,9 @@ manually. Note that changing a GID can be unsafe if files on the system are
 still owned by the original GID: those files may become accessible to a
 different group that is later assigned that GID.
 
-This command requires root privileges.
-
-Examples:
-  authctl group set-gid staff 30000
-  authctl group set-gid developers 40000`,
+This command requires root privileges.`,
+	Example: `  # Set the GID of group "staff" to 30000
+  authctl group set-gid staff 30000`,
 	Args:              cobra.ExactArgs(2),
 	ValidArgsFunction: completion.Groups,
 	RunE: func(cmd *cobra.Command, args []string) error {
