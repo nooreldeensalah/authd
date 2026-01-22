@@ -13,8 +13,8 @@ authentication, enabling cloud-based identity management for Ubuntu Desktop and
 Server.
 
 authd has a modular design, comprising an authentication daemon and various
-identity brokers. This enables authd to support a growing list of cloud
-identity providers. Currently, authd supports authentication with both [MS
+identity brokers. This enables authd to support a growing list of identity 
+providers. Currently, authd supports authentication with both [MS
 Entra ID](https://learn.microsoft.com/en-us/entra/fundamentals/whatis) and
 [Google IAM](https://cloud.google.com/iam/docs/overview). An example broker is
 also provided to help developers create new brokers for additional identity
@@ -24,7 +24,7 @@ If an organization is pursuing cloud-based authentication of Ubuntu
 workstations and servers, authd is a secure and versatile service to support a
 full transition to the cloud.
 
-## Supported cloud providers
+## Supported identity providers
 
 ::::{tab-set}
 :sync-group: broker

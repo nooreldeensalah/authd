@@ -5,10 +5,10 @@ myst:
 ---
 
 (ref::config)=
-# Configure authd for cloud identity providers
+# Configure authd for identity providers
 
 This guide shows how to configure identity brokers to support authentication of
-Ubuntu devices with authd and your chosen cloud provider.
+Ubuntu devices with authd and your chosen identity provider.
 
 ```{admonition} Logging in multiple users with authd
 :class: tip

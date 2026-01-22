@@ -13,12 +13,12 @@ These guides provide technical information about authd.
 
 ## Providers
 
-Multiple cloud providers and brokers are supported by authd:
+Multiple identity providers and brokers are supported by authd:
 
 ```{toctree}
 :titlesonly:
 
-Cloud providers that authd supports <cloud-providers>
+Identity providers that authd supports <identity-providers>
 ```
 
 ## Troubleshooting

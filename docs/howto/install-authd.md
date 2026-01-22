@@ -5,7 +5,7 @@ myst:
 ---
 
 (howto::install)=
-# Install authd and brokers for cloud identity providers
+# Install authd and brokers for identity providers
 
 This project consists of two components:
 * **authd**: The authentication daemon responsible for managing access to the authentication mechanism.

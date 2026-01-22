@@ -13,8 +13,8 @@ These guides explain how authd works.
 
 ## Architecture
 
-authd has a modular design and can interface with
-multiple cloud providers through different identity brokers.
+authd has a modular design and can interface with multiple identity providers
+through different identity brokers.
 
 ```{toctree}
 :titlesonly:

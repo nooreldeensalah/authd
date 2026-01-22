@@ -1,12 +1,12 @@
 ---
 myst:
   html_meta:
-    "description lang=en": "Cloud providers supported by authd."
+    "description lang=en": "Identity providers supported by authd."
 ---
 
-# Cloud providers that authd supports
+# Identity providers that authd supports
 
-authd supports cloud providers through its identity brokers.
+authd supports identity providers through its identity brokers.
 Each broker is available as a snap.
 Several brokers can be installed and enabled on a system.
 
