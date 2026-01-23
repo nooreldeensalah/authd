@@ -1,14 +1,14 @@
 ---
 myst:
   html_meta:
-    "description lang=en": "Configure authd and its identity brokers to enable authentication of Ubuntu devices with multiple cloud identity providers, including Google IAM and Microsoft Entra ID."
+    "description lang=en": "Configure authd and its identity brokers to enable authentication of Ubuntu devices with multiple cloud identity providers, including Google IAM, Microsoft Entra ID, and Keycloak."
 ---
 
 (ref::config)=
-# Configure authd for cloud identity providers
+# Configure authd for identity providers
 
 This guide shows how to configure identity brokers to support authentication of
-Ubuntu devices with authd and your chosen cloud provider.
+Ubuntu devices with authd and your chosen identity provider.
 
 ```{admonition} Logging in multiple users with authd
 :class: tip
@@ -31,7 +31,8 @@ Create the directory that will contain the declaration files of the broker(s):
 sudo mkdir -p /etc/authd/brokers.d/
 ```
 
-Then copy the `.conf` file from your chosen broker snap package:
+Then copy the `.conf` file from the broker snap package corresponding to the
+identity provider you want to use:
 
 :::::{tab-set}
 :sync-group: broker
@@ -50,6 +51,15 @@ sudo cp /snap/authd-google/current/conf/authd/google.conf /etc/authd/brokers.d/
 
 ```shell
 sudo cp /snap/authd-msentraid/current/conf/authd/msentraid.conf /etc/authd/brokers.d/
+```
+
+::::
+
+::::{tab-item} Keycloak
+:sync: keycloak
+
+```shell
+sudo cp /snap/authd-oidc/current/conf/authd/oidc.conf /etc/authd/brokers.d/
 ```
 
 ::::
@@ -136,6 +146,38 @@ https://login.microsoftonline.com/common/oauth2/nativeclient
 ```
 
 ::::
+
+::::{tab-item} Keycloak
+:sync: keycloak
+
+Register a new client in Keycloak. Go to {menuselection}`Manage --> Clients` and create the client.
+
+![Create client button being clicked.](../assets/keycloak-create-client.png)
+
+Configure the client as follows:
+
+1. General settings
+    * Set the client type to `OpenID Connect`.
+    * Pick a valid client ID, for example, `ubuntu-authd`.
+      This corresponds to the `<CLIENT_ID>` which is used in the next section.
+2. Capability config
+    * (Optional) Enable client authentication
+    * Enable the `OAuth 2.0 Device Authorization Grant` authentication flow.
+3. Login settings
+   * No need to change anything here.
+
+Finally, click on `Save` to create the client.
+
+If you enabled client authentication, find the client secret in the 
+`Credentials` tab. This corresponds to the `<CLIENT_SECRET>` in the next section.
+
+```{admonition} Set email addresses for users
+:class: tip
+Make sure that all users who should be able to log in through this broker have an 
+email address configured in Keycloak.
+```
+
+::::
 :::::
 
 
@@ -169,6 +211,25 @@ To configure Entra ID, edit  `/var/snap/authd-msentraid/current/broker.conf`:
 issuer = https://login.microsoftonline.com/<ISSUER_ID>/v2.0
 client_id = <CLIENT_ID>
 ```
+::::
+
+::::{tab-item} Keycloak
+:sync: keycloak
+
+To configure the authd-oidc broker for Keycloak, edit  `/var/snap/authd-oidc/current/broker.conf`:
+
+```ini
+[oidc]
+issuer = https://<host>/realms/<realm-name>
+client_id = <CLIENT_ID>
+```
+
+If you enabled client authentication, you also need to add the client secret:
+
+```ini
+client_secret = <CLIENT_SECRET>
+```
+
 ::::
 :::::
 
@@ -279,6 +340,14 @@ sudo rm /var/snap/authd-google/current/broker.conf.d/20-owner-autoregistration.c
 sudo rm /var/snap/authd-msentraid/current/broker.conf.d/20-owner-autoregistration.conf
 ```
 :::
+
+:::{tab-item} Keycloak
+:sync: keycloak
+
+```shell
+sudo rm /var/snap/authd-oidc/current/broker.conf.d/20-owner-autoregistration.conf
+```
+:::
 ::::
 
 
@@ -363,6 +432,12 @@ Make sure that the application in the Microsoft Entra admin center has a
 redirect URI configured as described in [Redirect URI](#redirect-uri).
 ```
 ::::
+
+::::{tab-item} Keycloak
+:sync: keycloak
+
+The authd-oidc broker does not support device registration.
+::::
 :::::
 
 ## Restart the broker
@@ -392,6 +467,15 @@ sudo snap restart authd-google
 
 ```shell
 sudo snap restart authd-msentraid
+```
+
+::::
+
+::::{tab-item} Keycloak
+:sync: keycloak
+
+```shell
+sudo snap restart authd-oidc
 ```
 
 ::::

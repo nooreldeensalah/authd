@@ -28,6 +28,8 @@ io
 jinja
 KDC
 Kerberos
+Keycloak
+keycloak
 keytab
 Keytab
 Keytabs
