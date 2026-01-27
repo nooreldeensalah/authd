@@ -138,7 +138,7 @@ In {menuselection}`Manage --> Authentication (Preview) --> Settings`, ensure tha
 ### Redirect URI
 
 If you plan to use the device registration feature (see [configure device registration](#configure-device-registration)),
-you need to configure a redirect URI for the application. Under {guilabel}`Manage`, in the {guilabel}`Authentication (Preview)` menu,
+you need to configure a redirect URI for the application. Go to {menuselection}`Manage --> Authentication (Preview)`,
 click on {guilabel}`Add Redirect URI`, then choose {guilabel}`Mobile and desktop applications` and select the following URI:
 
 ```
