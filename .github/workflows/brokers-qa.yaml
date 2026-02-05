@@ -6,6 +6,7 @@ on:
     tags:
       - "*"
     paths:
+      - ".github/workflows/brokers-qa.yaml"
       - "authd-oidc-brokers/**"
       - "!authd-oidc-brokers/e2e-tests/**"
       - "!authd-oidc-brokers/po/**"
@@ -13,6 +14,7 @@ on:
 
   pull_request:
     paths:
+      - ".github/workflows/brokers-qa.yaml"
       - "authd-oidc-brokers/**"
       - "!authd-oidc-brokers/e2e-tests/**"
       - "!authd-oidc-brokers/po/**"
