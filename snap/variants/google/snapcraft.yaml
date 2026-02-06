@@ -73,6 +73,8 @@ parts:
       "authd.conf": "conf/authd/google.conf"
       "broker.conf": "conf/broker.conf.orig"
       "migrations": "conf/migrations"
+    stage:
+      - conf
   # SemVer comparison helper
   semver:
     source: authd-oidc-brokers/tools
