@@ -154,9 +154,10 @@ type ChownGIDArgs struct {
 // Symlinks are not followed.
 //
 // If uidArgs/gidArgs is nil, change of ownership for UID/GID is skipped.
+// If both uidArgs and gidArgs are nil, an error is returned.
 func ChownRecursiveFrom(root string, uidArgs *ChownUIDArgs, gidArgs *ChownGIDArgs) error {
 	if uidArgs == nil && gidArgs == nil {
-		return nil
+		return fmt.Errorf("ChownRecursiveFrom: at least one of uidArgs or gidArgs must be non-nil")
 	}
 
 	return filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {

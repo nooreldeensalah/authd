@@ -476,11 +476,10 @@ func TestChownRecursiveFrom(t *testing.T) {
 		"No_change_if_no_file_matches_fromGID": {
 			gidArgs: &fileutils.ChownGIDArgs{FromGID: 1, ToGID: 0},
 		},
-		"No_change_if_UID_args_and_GID_args_are_both_nil": {
-			uidArgs: &fileutils.ChownUIDArgs{FromUID: 2, ToUID: 0},
-			gidArgs: &fileutils.ChownGIDArgs{FromGID: 2, ToGID: 0},
-		},
 
+		"Error_if_UID_args_and_GID_args_are_both_nil": {
+			wantError: true, wantErrorMatch: "at least one of uidArgs or gidArgs must be non-nil",
+		},
 		"Error_when_filesystem_is_read_only": {
 			uidArgs:            &fileutils.ChownUIDArgs{FromUID: 0, ToUID: 1},
 			readOnlyFilesystem: true, wantError: true, wantErrorMatch: "read-only file system",
