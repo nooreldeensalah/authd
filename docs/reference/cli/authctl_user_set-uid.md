@@ -17,7 +17,7 @@ still owned by the original UID: those files may become accessible to a
 different account that is later assigned that UID.
 
 ```
-authctl user set-uid <name> <uid> [flags]
+authctl user set-uid <user> <uid> [flags]
 ```
 
 ### Examples
