@@ -110,7 +110,7 @@ func (m qrcodeModel) View() string {
 	fields = append(fields, renderedContent)
 
 	if m.code != "" {
-		fields = append(fields, style.Render(m.code))
+		fields = append(fields, style.Render(fmt.Sprintf("Code: %s", m.code)))
 	}
 
 	if m.buttonModel != nil {

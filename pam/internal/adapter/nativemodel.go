@@ -721,6 +721,9 @@ func (m nativeModel) handleQrCode() tea.Cmd {
 	var qrcodeView []string
 	qrcodeView = append(qrcodeView, m.uiLayout.GetLabel())
 
+	// Add some extra vertical space to improve readability
+	qrcodeView = append(qrcodeView, " ")
+
 	var firstQrCodeLine string
 	if m.isQrcodeRenderingSupported() {
 		qrcode := m.renderQrCode(qrCode)
@@ -731,11 +734,10 @@ func (m nativeModel) handleQrCode() tea.Cmd {
 		firstQrCodeLine = m.uiLayout.GetContent()
 	}
 
-	centeredContent := centerString(m.uiLayout.GetContent(), firstQrCodeLine)
-	qrcodeView = append(qrcodeView, centeredContent)
+	qrcodeView = append(qrcodeView, fmt.Sprintf("URL: %s", m.uiLayout.GetContent()))
 
 	if code := m.uiLayout.GetCode(); code != "" {
-		qrcodeView = append(qrcodeView, centerString(code, firstQrCodeLine))
+		qrcodeView = append(qrcodeView, fmt.Sprintf("Code: %s", code))
 	}
 
 	// Add some extra vertical space to improve readability
@@ -780,17 +782,6 @@ func (m nativeModel) isQrcodeRenderingSupported() bool {
 		}
 		return IsTerminalTTY(m.pamMTx)
 	}
-}
-
-func centerString(s string, reference string) string {
-	sizeDiff := len([]rune(reference)) - len(s)
-	if sizeDiff <= 0 {
-		return s
-	}
-
-	// We put padding in both sides, so that it's respected also by non-terminal UIs
-	padding := strings.Repeat(" ", sizeDiff/2)
-	return padding + s + padding
 }
 
 func (m nativeModel) handleNewPassword() tea.Cmd {
