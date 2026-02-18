@@ -297,6 +297,7 @@ func TestUnlockUser(t *testing.T) {
 	}
 }
 
+//nolint:dupl // This is not a duplicate test
 func TestSetUserID(t *testing.T) {
 	tests := map[string]struct {
 		sourceDB string
@@ -328,6 +329,44 @@ func TestSetUserID(t *testing.T) {
 				return
 			}
 			require.NoError(t, err, "SetUserID should not return an error, but did")
+
+			golden.CheckOrUpdateYAML(t, resp)
+		})
+	}
+}
+
+//nolint:dupl // This is not a duplicate test
+func TestSetGroupID(t *testing.T) {
+	tests := map[string]struct {
+		sourceDB string
+
+		groupname          string
+		newGID             uint32
+		currentUserNotRoot bool
+
+		wantErr bool
+	}{
+		"Successfully_set_group_id":                {groupname: "group1", newGID: 6666},
+		"Successfully_set_group_id_with_uppercase": {groupname: "GROUP1", newGID: 6666},
+
+		"Error_when_groupname_is_empty":   {wantErr: true},
+		"Error_when_group_does_not_exist": {groupname: "doesnotexist", newGID: 6666, wantErr: true},
+		"Error_when_not_root":             {groupname: "group1", newGID: 6666, currentUserNotRoot: true, wantErr: true},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			if !tc.wantErr {
+				userslocking.Z_ForTests_OverrideLockingWithCleanup(t)
+			}
+
+			client, _ := newUserServiceClient(t, tc.sourceDB)
+
+			resp, err := client.SetGroupID(context.Background(), &authd.SetGroupIDRequest{Name: tc.groupname, Id: tc.newGID})
+			if tc.wantErr {
+				require.Error(t, err, "SetGroupID should return an error, but did not")
+				return
+			}
+			require.NoError(t, err, "SetGroupID should not return an error, but did")
 
 			golden.CheckOrUpdateYAML(t, resp)
 		})
