@@ -19,7 +19,7 @@ still owned by the original GID: those files may become accessible to a
 different group that is later assigned that GID.
 
 ```
-authctl group set-gid <name> <gid> [flags]
+authctl group set-gid <group> <gid> [flags]
 ```
 
 ### Examples
