@@ -29,8 +29,8 @@ func genManPage(cmd *cobra.Command, path string) error {
 	fmt.Fprintf(buf, ".\\\" Generated from authctl man page generator\n")
 	fmt.Fprintf(buf, ".\\\" Do not edit manually\n")
 	fmt.Fprintf(buf, ".nh\n")
-	fmt.Fprintf(buf, ".TH \"%s\" \"%s\" \"%s\" \"%s\" \"%s\"\n",
-		header.Title, header.Section, header.Date.Format("Jan 2006"), header.Source, header.Manual)
+	fmt.Fprintf(buf, ".TH \"%s\" \"%s\" \"%s\" \"%s\"\n",
+		header.Title, header.Section, header.Date.Format("Jan 2006"), header.Source)
 
 	// NAME
 	fmt.Fprintf(buf, ".SH NAME\n")
@@ -176,9 +176,6 @@ func fillHeader(header *doc.GenManHeader, name string) {
 	}
 	if header.Source == "" {
 		header.Source = "authd"
-	}
-	if header.Manual == "" {
-		header.Manual = "authd"
 	}
 	if header.Date == nil {
 		now := time.Now()
