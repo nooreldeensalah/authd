@@ -1,4 +1,4 @@
-name: Build debian packages
+name: Build Debian package
 
 on:
   push:
@@ -95,7 +95,7 @@ jobs:
       - name: Checkout authd code
         uses: actions/checkout@v6
 
-      - name: Build debian packages and sources
+      - name: Build Debian package and sources
         uses: canonical/desktop-engineering/gh-actions/common/build-debian@main
         with:
           docker-image: ubuntu:${{ matrix.ubuntu-version }}
