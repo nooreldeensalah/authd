@@ -13,6 +13,8 @@ Prepare the snapcraft.yaml for building the specified broker snap.
 Options:
   --broker <broker>  The broker to use (oidc, msentraid or google).
   --copy             Copy files instead of creating symlinks.
+                     This is needed by the 'update-snap-branches' CI job but
+                     should not be necessary locally.
 EOF
 }
 
