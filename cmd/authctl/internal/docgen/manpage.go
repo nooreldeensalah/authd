@@ -75,6 +75,10 @@ func genManPage(cmd *cobra.Command, path string) error {
 	fmt.Fprintf(buf, "\\%%https://documentation.ubuntu.com/authd\n")
 	fmt.Fprintf(buf, ".RE\n")
 
+	if !shouldWriteManPage(path, buf.Bytes()) {
+		return nil
+	}
+
 	return os.WriteFile(path, buf.Bytes(), 0600)
 }
 
@@ -244,4 +248,37 @@ func manPrintFlags(buf *bytes.Buffer, flags *pflag.FlagSet) {
 
 		fmt.Fprintf(buf, ".RE\n")
 	})
+}
+
+// stripDate returns the given man page data with the date removed.
+func stripDate(data []byte) []byte {
+	lines := strings.Split(string(data), "\n")
+	var out []string
+	for _, line := range lines {
+		if strings.HasPrefix(line, ".TH ") {
+			parts := strings.Fields(line)
+			if len(parts) >= 5 {
+				parts[3] = "" // Remove date
+				line = strings.Join(parts, " ")
+			}
+		}
+		out = append(out, line)
+	}
+	return []byte(strings.Join(out, "\n"))
+}
+
+func shouldWriteManPage(path string, content []byte) bool {
+	existing, err := os.ReadFile(path)
+	if err != nil {
+		// The man page doesn't exist yet, so we should write it
+		return true
+	}
+
+	if bytes.Equal(stripDate(existing), stripDate(content)) {
+		// The man page is unchanged (except for the date), so don't write it
+		log("Man page is up-to-date")
+		return false
+	}
+
+	return true
 }
