@@ -5,13 +5,15 @@ set -euo pipefail
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 usage() {
-    echo "Usage: $0 --broker <broker> [--copy]"
-    echo
-    echo "Prepare the snapcraft.yaml for building the specified broker snap."
-    echo
-    echo "Options:"
-    echo "  --broker <broker>  The broker to use (oidc, msentraid or google)."
-    echo "  --copy             Copy files instead of creating symlinks."
+    cat << EOF
+Usage: $0 --broker <broker> [--copy]
+
+Prepare the snapcraft.yaml for building the specified broker snap.
+
+Options:
+  --broker <broker>  The broker to use (oidc, msentraid or google).
+  --copy             Copy files instead of creating symlinks.
+EOF
 }
 
 while [[ $# -gt 0 ]]; do
