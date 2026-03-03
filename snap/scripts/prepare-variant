@@ -40,8 +40,6 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-set -x
-
 if [[ -z "${BROKER:-}" ]]; then
     echo "Error: --broker is required."
     usage
