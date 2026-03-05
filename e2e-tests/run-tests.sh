@@ -178,12 +178,14 @@ env \
     VNC_PORT="$VNC_PORT" \
     SYSTEMD_SUPPORTS_VSOCK="${SYSTEMD_SUPPORTS_VSOCK:-}" \
     robot \
+        --consolecolors on \
         --loglevel DEBUG \
         --pythonpath "${YARF_DIR}/yarf/rf_libraries/libraries/vnc" \
         --outputdir "${OUTPUT_DIR}" \
         "${ROBOT_ARGS[@]}" \
         "$@" \
         tests \
+        | grep -v "<video controls style" \
         || test_result=$?
 
 exit "${test_result:-0}"
