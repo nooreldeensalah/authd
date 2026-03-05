@@ -71,7 +71,7 @@ def main():
 
 
 def login(browser, username: str, password: str, device_code: str, totp_secret: str, screenshot_dir: str = "."):
-    browser.web_view.load_uri("https://microsoft.com/devicelogin")
+    browser.web_view.load_uri("https://login.microsoft.com/device")
     browser.wait_for_stable_page()
     browser.capture_snapshot(screenshot_dir, "page-loaded")
 
