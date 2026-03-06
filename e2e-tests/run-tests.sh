@@ -169,6 +169,9 @@ for test_file in $TESTS_TO_RUN; do
     ln -s "${test_file}" tests
 done
 
+# Make YARF not log videos, we log them ourselves in the test case error message.
+YARF_LOG_VIDEO=0
+
 env \
     E2E_USER="$E2E_USER" \
     E2E_PASSWORD="$E2E_PASSWORD" \
@@ -177,6 +180,7 @@ env \
     RELEASE="$RELEASE" \
     VNC_PORT="$VNC_PORT" \
     SYSTEMD_SUPPORTS_VSOCK="${SYSTEMD_SUPPORTS_VSOCK:-}" \
+    YARF_LOG_VIDEO="${YARF_LOG_VIDEO}" \
     robot \
         --consolecolors on \
         --loglevel DEBUG \
