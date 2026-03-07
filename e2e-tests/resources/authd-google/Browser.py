@@ -7,14 +7,12 @@ from robot.api import logger
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_command(args):
-    result = subprocess.run(args)
+    result = subprocess.run(args, stderr=subprocess.PIPE, text=True)
     if result.returncode == 0:
         return
 
     cmd = " ".join(args)
-    logger.error(f"Command '{cmd}' failed with code {result.returncode}:\n{result.stderr}")
-
-    raise RuntimeError(f"Command '{cmd}' failed")
+    raise RuntimeError(f"Command '{cmd}' failed with exit code {result.returncode}:\n{result.stderr}")
 
 
 @library
