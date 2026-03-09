@@ -125,7 +125,14 @@ Run Command
     Hid.Keys Combo    Alt_L    F2
     Match Text    Run a Command    15
     Hid.Type String    ${command}
-    Hid.Keys Combo   Return
+    Wait Until Keyword Succeeds    5s    1s    Submit Run Command Dialog
+
+Submit Run Command Dialog
+    Hid.Keys Combo    Return
+    # Ensure the dialog is closed, because sometimes the Return keypress does
+    # not trigger the command execution and the dialog remains open.
+    ${matches}=    Find Text    Run a Command
+    Should Be Empty    ${matches}
 
 
 Start Application
