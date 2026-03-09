@@ -218,12 +218,6 @@ jobs:
             --output-dir "${{ env.OUTPUT_DIR }}" \
             || exit_code=$?
 
-          # Redact secrets from the test output
-          for file in "${{ env.OUTPUT_DIR }}"/{log,report}.html; do
-            sed -i "s/${E2E_PASSWORD}/[redacted-password]/g" "$file"
-            sed -i "s/${TOTP_SECRET}/[redacted-totp-secret]/g" "$file"
-          done
-
           if [ -n "${exit_code:-}" ]; then
             state="failure"
           else
