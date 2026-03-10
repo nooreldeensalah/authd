@@ -69,8 +69,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: oras-project/setup-oras@v1
-
       - name: Download the broker snap
         id: download-broker-snap
         env:
@@ -78,6 +76,8 @@ jobs:
           OCI_TAG: ${{ github.sha }}
         run: |
           set -euo pipefail
+
+          go install oras.land/oras/cmd/oras@v1.3.0
 
           echo "${{ secrets.GITHUB_TOKEN }}" \
             | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
