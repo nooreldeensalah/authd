@@ -19,5 +19,5 @@ class VideoLogger:
             with open(path, 'rb') as f:
                 data = f.read()
             b64 = base64.b64encode(data).decode('utf-8')
-            html = f'<video controls style="max-width: 50%" src="data:video/webm;base64,{b64}" />'
+            html = f'<video controls style="max-width: 50%" src="data:video/webm;base64,{b64}"></video>'
             BuiltIn().set_test_message(f'*HTML*<h3>{title}</h3>{html}', append=True, separator='\n')
