@@ -61,12 +61,17 @@ def main():
 
         try:
             login(browser, username, password, args.device_code, totp_secret, screenshot_dir)
-        except TimeoutError:
+        except TimeoutError as e:
             # Sometimes the page can't be loaded due to TLS errors, retry once
             if not retried_tls_error:
-                browser.wait_for_pattern("Unacceptable TLS certificate", timeout_ms=1000)
-                repeat = True
-                retried_tls_error = True
+                try:
+                    browser.wait_for_pattern("Unacceptable TLS certificate", timeout_ms=1000)
+                    repeat = True
+                    retried_tls_error = True
+                except TimeoutError:
+                    pass
+            if not repeat:
+                raise e
         finally:
             if browser.get_mapped():
                 browser.capture_snapshot(screenshot_dir, "failure")
