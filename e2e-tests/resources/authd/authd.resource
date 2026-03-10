@@ -11,7 +11,7 @@ ${local_password}    qwer1234
 
 *** Keywords ***
 Enable Edge Repository For Authd
-    SSH.Execute    sudo add-apt-repository ppa:ubuntu-enterprise-desktop/authd-edge -y
+    SSH.Execute    sudo add-apt-repository ppa:ubuntu-enterprise-desktop/authd-edge -y  timeout=300
 
 
 Disable Authd Socket And Service
