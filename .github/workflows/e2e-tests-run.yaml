@@ -34,6 +34,12 @@ on:
         required: false
       E2E_GOOGLE_TOTP_SECRET:
         required: false
+      R2_ACCESS_KEY_ID:
+        required: true
+      R2_SECRET_ACCESS_KEY:
+        required: true
+      R2_ACCOUNT_ID:
+        required: true
 
 env:
   DEBIAN_FRONTEND: noninteractive
@@ -54,8 +60,8 @@ jobs:
     needs: build-broker-snap
     runs-on: ubuntu-latest
     permissions:
-      # Needed by JamesIves/github-pages-deploy-action
-      contents: write
+      # Needed by actions/checkout
+      contents: read
       # Needed to pull OCI artifacts from ghcr.io
       packages: read
       # Needed to use the commit statuses API to show a PR check for the e2e-test logs
@@ -244,31 +250,32 @@ jobs:
         if: always() && (steps.run-tests.outputs.log != '' || steps.run-tests.outputs.report != '')
         run: |
           set -euo pipefail
-          TARGET_DIR="pr/${{ github.event.pull_request.number }}/${{ github.run_id }}/${{ github.run_attempt }}/e2e-tests/${{ inputs.ubuntu-version }}/${{ inputs.broker }}"
+          TARGET_DIR="pr-${{ github.event.pull_request.number }}/run-${{ github.run_id }}-${{ github.run_attempt }}/${{ inputs.ubuntu-version }}-${{ inputs.broker }}"
           mkdir -p "pages/${TARGET_DIR}"
           cp "${{ steps.run-tests.outputs.log }}" "pages/${TARGET_DIR}/log.html"
           cp "${{ steps.run-tests.outputs.report }}" "pages/${TARGET_DIR}/report.html"
           echo "target-dir=${TARGET_DIR}" >> "$GITHUB_OUTPUT"
 
-          OWNER="${{ github.repository_owner }}"
-          REPO="$(basename "${{ github.repository }}")"
-          echo "log-url=https://$OWNER.github.io/$REPO/$TARGET_DIR/log.html" >> "$GITHUB_OUTPUT"
+          # We can't pass this as a secret because then it's masked in the logs
+          # and we can't pass it as an Action variable because those are not
+          # available in called reusable workflows.
+          R2_E2E_TEST_DOMAIN="authd-e2e-test-logs.adrian-dombeck.workers.dev"
+          echo "log-url=https://${R2_E2E_TEST_DOMAIN}/${TARGET_DIR}/log.html" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy to GitHub Pages
-        id: deploy-pages
-        if: always() && steps.prepare-pages.outcome == 'success'
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: pages/
-          # Don't delete the existing pages, so we don't overwrite other PRs' test results
-          clean: false
-          # Rebase instead of force-push, so concurrent PRs don't overwrite each other
-          force: false
+      - name: Upload test logs
+        id: upload-pages
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync pages/ s3://authd-e2e-test-logs/ \
+            --endpoint-url https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com \
+            --region auto
 
       - name: Create commit status with link to the logs
         id: create-commit-status
         uses: actions/github-script@v7
-        if: always() && steps.deploy-pages.outcome == 'success'
+        if: always() && steps.upload-pages.outcome == 'success'
         with:
           retries: 3
           script: |
