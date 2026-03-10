@@ -97,7 +97,7 @@ def login(browser, username: str, password: str, device_code: str, totp_secret: 
     browser.send_key_taps(
         ascii_string_to_key_events(password) + [Gdk.KEY_Return])
 
-    browser.wait_for_pattern("2-Step Verification")
+    browser.wait_for_pattern("2-Step Verification", timeout_ms=20000)
     browser.wait_for_stable_page()
     browser.capture_snapshot(screenshot_dir, "device-login-enter-totp-code")
     browser.send_key_taps(
