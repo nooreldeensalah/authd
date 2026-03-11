@@ -13,12 +13,10 @@ Test Teardown   Test Teardown
 *** Keywords ***
 Test Setup
     Restore Snapshot    %{BROKER}-installed
-    Journal.Start Receiving Journal
+    Common Test Setup
 
 Test Teardown
-    Journal.Stop Receiving Journal
-    Journal.Log Journal
-    Log Videos On Error
+    Common Test Teardown
 
 
 *** Variables ***
@@ -39,5 +37,5 @@ Test that changing owner prevents remote logins
     Open Terminal
     Start Log In With Remote User Through CLI: QR Code    ${username}
     Select Provider
-    Continue Log In With Remote User: Authenticate In External Browser    ${username}
+    Continue Log In With Remote User: Authenticate In External Browser
     Check That Remote User Is Not Allowed To Log In

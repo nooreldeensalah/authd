@@ -11,7 +11,7 @@ ${local_password}    qwer1234
 
 *** Keywords ***
 Enable Edge Repository For Authd
-    SSH.Execute    sudo add-apt-repository ppa:ubuntu-enterprise-desktop/authd-edge -y
+    SSH.Execute    sudo add-apt-repository ppa:ubuntu-enterprise-desktop/authd-edge -y  timeout=300
 
 
 Disable Authd Socket And Service
@@ -63,7 +63,7 @@ Try Log In With Remote User
 
 # Conditional checks
 Check That Remote User Has No Available Authentication Modes
-    Match Text    could not get authentication modes: Error connecting to provider. Check your network connection.    120
+    Match Text    Error connecting to provider. Check your network connection.    120
 
 
 Check That Log In Fails Because Authd Is Disabled

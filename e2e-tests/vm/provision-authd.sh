@@ -253,10 +253,10 @@ $SSH "sudo add-apt-repository -y ppa:${PPA}"
 $SSH bash -euo pipefail -s <<-EOF
     sudo mkdir -p /etc/systemd/system/authd.service.d
     cat <<-UNIT | sudo tee /etc/systemd/system/authd.service.d/override.conf
-        [Service]
-        ExecStart=
-        ExecStart=/usr/libexec/authd -vv
-    UNIT
+		[Service]
+		ExecStart=
+		ExecStart=/usr/libexec/authd -vv
+	UNIT
 EOF
 
 # Install the version of authd to test

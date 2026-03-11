@@ -90,6 +90,11 @@ write_files:
       [Install]
       WantedBy=basic.target
 
+  # Hide login banner to avoid cluttering the terminal with messages that make
+  # OCR results less predictable.
+  - path: /etc/skel/.hushlogin
+    content: ""
+
 runcmd:
   # Disable apport
   - sed -i 's/enabled=1/enabled=0/' /etc/default/apport

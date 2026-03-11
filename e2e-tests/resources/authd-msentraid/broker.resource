@@ -33,7 +33,7 @@ Log In With Remote User Through CLI: QR Code
     [Arguments]    ${username}    ${local_password}
     Start Log In With Remote User Through CLI: QR Code    ${username}
     Select Provider
-    Continue Log In With Remote User: Authenticate In External Browser    ${username}
+    Continue Log In With Remote User: Authenticate In External Browser
     Continue Log In With Remote User Through CLI: Define Local Password    ${username}    ${local_password}
 
 
@@ -60,21 +60,20 @@ Regenerate QR Code
     # As long as we are in the login process, we can regenerate the QR code
     Match Text    Request new code    120
     Hid.Keys Combo    Return
-    Match Text    microsoft.com/devicelogin    15
+    Match Text    login.microsoft.com/device    15
 
 
 Continue Log In With Remote User: Authenticate In External Browser
-    [Arguments]    ${username}
     # Wait until the verification URL and login code are displayed
-    Match Text    microsoft.com/devicelogin
+    Match Text    login.microsoft.com/device
     # Read the user code.
     ${text} =    Read Text
-    ${user_code} =    StringUtils.First Match    (https://)?microsoft.com/devicelogin\n((Login code: )?([A-Za-z0-9]+))    ${text}
+    ${user_code} =    StringUtils.First Match    (https://)?login.microsoft.com/device\n((Login code: )?([A-Za-z0-9]+))    ${text}
     # The user code is all uppercase, but sometimes the OCR reads some letters as lowercase,
     # so convert it to uppercase to handle that.
     ${user_code} =    String.Convert To Upper Case    ${user_code}
 
-    Browser.Login    ${username}    %{E2E_PASSWORD}    ${user_code}    %{TOTP_SECRET}    ${OUTPUT DIR}
+    Browser.Login    ${user_code}    ${SUITE_OUTPUT_DIR}
 
 
 Continue Log In With Remote User Through CLI: Define Local Password
@@ -138,7 +137,7 @@ Log In With Remote User Through SSH: QR Code
     [Arguments]    ${username}    ${local_password}
     Start Log In With Remote User Through SSH: QR Code    ${username}
     Select Provider through SSH
-    Continue Log In With Remote User: Authenticate In External Browser    ${username}
+    Continue Log In With Remote User: Authenticate In External Browser
     Continue Log In With Remote User Through SSH: QR Code
     Continue Log In With Remote User Through SSH: Define Local Password    ${username}    ${local_password}
 
@@ -192,7 +191,7 @@ Log In With Remote User Through GDM: QR Code
     [Arguments]    ${username}    ${local_password}
     Start Log In With Remote User Through GDM: QR Code    ${username}
     Select Broker Through GDM
-    Continue Log In With Remote User: Authenticate In External Browser    ${username}
+    Continue Log In With Remote User: Authenticate In External Browser
     Continue Log In With Remote User Through GDM: Define Local Password    ${local_password}
 
 

@@ -62,6 +62,13 @@ write_files:
       [org/gnome/desktop/interface]
       text-scaling-factor=1.25
 
+  # Configure dconf for GDM
+  - path: /usr/share/gdm/dconf/00-e2e-tests-requirements
+    content: |
+      # Use larger text for better OCR results
+      [org/gnome/desktop/interface]
+      text-scaling-factor=1.25
+
   - path: /etc/ssh/sshd_config.d/authd.conf
     content: |
       UsePAM yes
@@ -103,6 +110,11 @@ write_files:
 
       [Install]
       WantedBy=basic.target
+
+  # Hide login banner to avoid cluttering the terminal with messages that make
+  # OCR results less predictable.
+  - path: /etc/skel/.hushlogin
+    content: ""
 
 runcmd:
   # Disable apport

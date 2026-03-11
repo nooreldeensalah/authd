@@ -13,12 +13,10 @@ Test Teardown   Test Teardown
 *** Keywords ***
 Test Setup
     Restore Snapshot    %{BROKER}-installed
-    Journal.Start Receiving Journal
+    Common Test Setup
 
 Test Teardown
-    Journal.Stop Receiving Journal
-    Journal.Log Journal
-    Log Videos On Error
+    Common Test Teardown
 
 
 *** Variables ***
@@ -38,5 +36,5 @@ Test that login fails if usernames do not match
     Open Terminal
     Start Log In With Remote User Through CLI: QR Code   different_user
     Select Provider
-    Continue Log In With Remote User: Authenticate In External Browser   ${username}
+    Continue Log In With Remote User: Authenticate In External Browser
     Check That Authenticated User Does Not Match Requested User    different_user

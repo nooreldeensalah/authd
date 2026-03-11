@@ -12,12 +12,10 @@ Test Teardown   Test Teardown
 *** Keywords ***
 Test Setup
     Restore Snapshot    %{BROKER}-installed
-    Journal.Start Receiving Journal
+    Common Test Setup
 
 Test Teardown
-    Journal.Stop Receiving Journal
-    Journal.Log Journal
-    Log Videos On Error
+    Common Test Teardown
 
 
 *** Variables ***

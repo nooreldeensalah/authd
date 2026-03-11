@@ -97,7 +97,8 @@ jobs:
               '.github/workflows/e2e-tests-provision-and-run.yaml'
             ) }}
 
-      - uses: oras-project/setup-oras@v1
+      - uses: ./.github/actions/setup-oras
+
       - name: Upload VM image as OCI artifact
         if: steps.provision-vm.outcome == 'success' || steps.restore-cache.outputs.cache-hit == 'true'
         env:
@@ -106,7 +107,7 @@ jobs:
           OCI_TAG: ${{ inputs.ubuntu-version }}
         run: |
           set -euo pipefail
-          
+
           echo "${{ secrets.GITHUB_TOKEN }}" \
             | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
 

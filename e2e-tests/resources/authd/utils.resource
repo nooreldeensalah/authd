@@ -5,10 +5,15 @@ Resource            ../kvm.resource
 Library             ./Journal.py    AS    Journal
 Library             ./StringUtils.py    AS    StringUtils
 Library             ./VideoLogger.py    AS    VideoLogger
+Library             ./VNCRecorder.py   AS    VNCRecorder
 Library             ./Snapshot.py    AS    Snapshot
 Library             ./SSH.py    AS    SSH
 Library             Process
 Library             OperatingSystem
+
+
+*** Variables ***
+${SUITE_OUTPUT_DIR}    ${OUTPUT DIR}/${SUITE NAME}
 
 
 *** Keywords ***
@@ -124,7 +129,14 @@ Run Command
     Hid.Keys Combo    Alt_L    F2
     Match Text    Run a Command    15
     Hid.Type String    ${command}
-    Hid.Keys Combo   Return
+    Wait Until Keyword Succeeds    5s    1s    Submit Run Command Dialog
+
+Submit Run Command Dialog
+    Hid.Keys Combo    Return
+    # Ensure the dialog is closed, because sometimes the Return keypress does
+    # not trigger the command execution and the dialog remains open.
+    ${matches}=    Find Text    Run a Command
+    Should Be Empty    ${matches}
 
 
 Start Application
@@ -178,8 +190,19 @@ Restore Snapshot
     Snapshot.Restore    ${snapshot_name}
     Wait Until System Time Synced
 
+Common Test Setup
+    Set Suite Metadata    Ubuntu Version   %{RELEASE}    top=True
+    Set Suite Metadata    Broker    %{BROKER}    top=True
+    Journal.Start Receiving Journal
+    VNCRecorder.Start Recording
 
 ### Teardown ###
 
 Log Videos On Error
     Run Keyword If    '${TEST STATUS}' == 'FAIL'    VideoLogger.Log videos
+
+Common Test Teardown
+    VNCRecorder.Stop Recording
+    Journal.Stop Receiving Journal
+    Journal.Log Journal
+    Log Videos On Error
