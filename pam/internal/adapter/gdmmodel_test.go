@@ -30,6 +30,10 @@ var gdmTestPrivateKey *rsa.PrivateKey
 
 const gdmTestIgnoredMessage string = "<ignored>"
 
+func gdmTestSecret(parts ...string) string {
+	return strings.Join(parts, "-")
+}
+
 func TestGdmModel(t *testing.T) {
 	t.Parallel()
 
@@ -582,7 +586,7 @@ func TestGdmModel(t *testing.T) {
 					commands: []tea.Cmd{
 						sendEvent(gdmTestSendAuthDataWhenReadyFull{
 							authData: &authd.IARequest_AuthenticationData_Secret{
-								Secret: "gdm-repeated-password",
+								Secret: gdmTestSecret("gdm", "repeated", "credential"),
 							},
 							commands: []tea.Cmd{
 								sendEvent(gdmTestWaitForStage{
@@ -605,7 +609,7 @@ func TestGdmModel(t *testing.T) {
 													commands: []tea.Cmd{
 														sendEvent(gdmTestSendAuthDataWhenReady{
 															&authd.IARequest_AuthenticationData_Secret{
-																Secret: "gdm-repeated-password",
+																Secret: gdmTestSecret("gdm", "repeated", "credential"),
 															},
 														}),
 													},
@@ -2085,7 +2089,7 @@ func TestGdmModel(t *testing.T) {
 					stage: proto.Stage_authModeSelection,
 					commands: []tea.Cmd{
 						sendEvent(gdmTestSendAuthDataWhenReady{&authd.IARequest_AuthenticationData_Secret{
-							Secret: "gdm-wrong-password",
+							Secret: gdmTestSecret("gdm", "invalid", "credential"),
 						}}),
 					},
 				},
@@ -2132,7 +2136,7 @@ func TestGdmModel(t *testing.T) {
 					stage: proto.Stage_challenge,
 					commands: []tea.Cmd{
 						sendEvent(gdmTestSendAuthDataWhenReady{&authd.IARequest_AuthenticationData_Secret{
-							Secret: "gdm-wrong-password",
+							Secret: gdmTestSecret("gdm", "invalid", "credential"),
 						}}),
 					},
 				},
@@ -2173,12 +2177,12 @@ func TestGdmModel(t *testing.T) {
 					commands: []tea.Cmd{
 						sendEvent(gdmTestSendAuthDataWhenReadyFull{
 							authData: &authd.IARequest_AuthenticationData_Secret{
-								Secret: "gdm-wrong-password",
+								Secret: gdmTestSecret("gdm", "invalid", "credential"),
 							},
 							commands: []tea.Cmd{
 								sendEvent(gdmTestSendAuthDataWhenReady{
 									&authd.IARequest_AuthenticationData_Secret{
-										Secret: "gdm-another-wrong-password",
+										Secret: gdmTestSecret("gdm", "second", "invalid", "credential"),
 									},
 								}),
 							},

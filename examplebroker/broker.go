@@ -622,6 +622,7 @@ func (b *Broker) IsAuthenticated(ctx context.Context, sessionID, authenticationD
 		return "", "", fmt.Errorf("IsAuthenticated already running for session %q", sessionID)
 	}
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	b.isAuthenticatedCalls[sessionID] = isAuthenticatedCtx{ctx, cancel}
 	b.isAuthenticatedCallsMu.Unlock()
 

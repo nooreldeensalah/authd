@@ -275,6 +275,7 @@ func (m authenticationModel) Update(msg tea.Msg) (authModel authenticationModel,
 
 		authTracker := m.authTracker
 
+		//nolint:gosec // G118 The cancellation path is stored in authTracker and invoked by the UI flow.
 		ctx, cancel := context.WithCancel(context.Background())
 		cancelFunc := func() {
 			// Very very ugly, but we need to ensure that IsAuthenticated call has been delivered

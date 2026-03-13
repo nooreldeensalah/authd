@@ -279,6 +279,7 @@ func TestAutoDetectConfig(t *testing.T) {
 
 	configPath := daemon.GenerateTestConfig(t, &config, issuerURL)
 	configNextToBinaryPath := filepath.Join(filepath.Dir(os.Args[0]), t.Name()+".yaml")
+	// #nosec G703 -- this test intentionally places a config file next to the test binary.
 	err := os.Rename(configPath, configNextToBinaryPath)
 	require.NoError(t, err, "Could not relocate authd configuration file in the binary directory")
 	// Remove configuration next binary for other tests to not pick it up.

@@ -5,12 +5,22 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"syscall"
 
 	"golang.org/x/sys/unix"
 )
+
+func fileDescriptor(f *os.File) (int, error) {
+	fd := f.Fd()
+	if fd > math.MaxInt {
+		return 0, fmt.Errorf("file descriptor %d overflows int", fd)
+	}
+
+	return int(fd), nil
+}
 
 // FileExists checks if a file exists at the given path.
 func FileExists(path string) (bool, error) {
@@ -116,13 +126,19 @@ func LockDir(dir string) (func() error, error) {
 		return nil, err
 	}
 
-	if err := unix.Flock(int(f.Fd()), unix.LOCK_EX); err != nil {
+	fd, err := fileDescriptor(f)
+	if err != nil {
+		_ = f.Close()
+		return nil, err
+	}
+
+	if err := unix.Flock(fd, unix.LOCK_EX); err != nil {
 		_ = f.Close()
 		return nil, err
 	}
 
 	unlock := func() error {
-		if err := unix.Flock(int(f.Fd()), unix.LOCK_UN); err != nil {
+		if err := unix.Flock(fd, unix.LOCK_UN); err != nil {
 			_ = f.Close()
 			return err
 		}
@@ -175,12 +191,14 @@ func ChownRecursiveFrom(root string, uidArgs *ChownUIDArgs, gidArgs *ChownGIDArg
 		}
 
 		if uidArgs != nil && stat.Uid == uidArgs.FromUID {
+			//nolint:gosec // G122 This intentionally updates entries returned by WalkDir without following symlinks.
 			if err := os.Lchown(path, int(uidArgs.ToUID), -1); err != nil {
 				return fmt.Errorf("failed to change ownership: %w", err)
 			}
 		}
 
 		if gidArgs != nil && stat.Gid == gidArgs.FromGID {
+			//nolint:gosec // G122 This intentionally updates entries returned by WalkDir without following symlinks.
 			if err := os.Lchown(path, -1, int(gidArgs.ToGID)); err != nil {
 				return fmt.Errorf("failed to change group ownership: %w", err)
 			}

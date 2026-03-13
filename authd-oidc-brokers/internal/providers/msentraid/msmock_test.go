@@ -3,6 +3,7 @@
 package msentraid_test
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -137,11 +138,13 @@ func isAuthorizeEndpoint(path, tenantID string) bool {
 // ----- handlers -----
 
 func (m *mockMSServer) handleTokenRequest(t *testing.T, w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	require.NoError(t, err, "failed to parse form")
-
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	body, err := io.ReadAll(r.Body)
 	require.NoError(t, err, "failed to read request body")
+	r.Body = io.NopCloser(bytes.NewReader(body))
+
+	err = r.ParseForm()
+	require.NoError(t, err, "failed to parse form")
 	fmt.Fprintf(os.Stderr, "Mock MS server received token request - form: %s, body: %s\n", r.Form, string(body))
 
 	// The grant_type can be passed as form data or as the body
@@ -193,15 +196,14 @@ func (m *mockMSServer) handleAuthorizeRequest(t *testing.T, w http.ResponseWrite
 	redir.RawQuery = params.Encode()
 	redirectStr := redir.String()
 
-	// The client’s success branch looks for:
-	//   document.location.replace("...")  (with \u0026 allowed for '&')
-	jsURL := strings.ReplaceAll(redirectStr, "&", `\u0026`)
+	jsURL, err := json.Marshal(redirectStr)
+	require.NoError(t, err, "failed to encode redirect URI for javascript")
 
 	htmlBody := fmt.Sprintf(`<!doctype html>
 <html>
   <head><meta charset="utf-8"><title>Working…</title></head>
   <body>
-    <script>document.location.replace("%s")</script>
+    <script>document.location.replace(%s)</script>
     <noscript><a href="%s">Continue</a></noscript>
   </body>
 </html>`, jsURL, html.EscapeString(redirectStr))

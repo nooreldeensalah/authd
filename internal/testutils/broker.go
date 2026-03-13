@@ -233,6 +233,7 @@ func (b *BrokerBusMock) IsAuthenticated(sessionID, authenticationData string) (a
 	b.isAuthenticatedCallsMu.RUnlock()
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	b.isAuthenticatedCallsMu.Lock()
 	b.isAuthenticatedCalls[sessionID] = isAuthenticatedCtx{ctx, cancel}
 	b.isAuthenticatedCallsMu.Unlock()

@@ -211,8 +211,14 @@ func TokenHandler(serverURL string, opts *TokenHandlerOptions) EndpointHandler {
 		}
 		log.Debugf(context.Background(), "/token endpoint request:\n%s", s)
 
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+		if err := r.ParseForm(); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		// Handle expired refresh token
-		refreshToken := r.FormValue("refresh_token")
+		refreshToken := r.Form.Get("refresh_token")
 		if refreshToken == ExpiredRefreshToken {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)

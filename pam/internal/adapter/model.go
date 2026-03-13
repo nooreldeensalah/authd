@@ -204,6 +204,7 @@ func (m *uiModel) startHealthCheck() tea.Cmd {
 	}
 
 	var ctx context.Context
+	//nolint:gosec // G118 The cancel function is stored on the model and called during teardown.
 	ctx, m.healthCheckCancel = context.WithCancel(context.Background())
 	healthClient := healthgrpc.NewHealthClient(m.conn)
 	hcReq := &healthgrpc.HealthCheckRequest{Service: consts.ServiceName}

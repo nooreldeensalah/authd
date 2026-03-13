@@ -21,6 +21,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func uint32FromInt(t *testing.T, value int, label string) uint32 {
+	t.Helper()
+
+	if value < 0 || uint64(value) > math.MaxUint32 {
+		require.FailNowf(t, "Setup: invalid value", "%s %d does not fit in uint32", label, value)
+	}
+
+	//nolint:gosec // G115 value range is validated above.
+	return uint32(value)
+}
+
 func TestSetUserID(t *testing.T) {
 	t.Parallel()
 
@@ -127,8 +138,7 @@ func TestSetUserID(t *testing.T) {
 				addGroupToSystem(t, newUID)
 			}
 
-			//nolint:gosec // G115 we set the UID above to values that are valid uint32
-			resp, err := m.SetUserID(username, uint32(newUID))
+			resp, err := m.SetUserID(username, uint32FromInt(t, newUID, "UID"))
 			log.Infof(context.Background(), "SetUserID error: %v", err)
 			log.Infof(context.Background(), "SetUserID resp: %v", resp)
 
@@ -288,8 +298,7 @@ func TestSetGroupID(t *testing.T) {
 				setPrimaryGroup(t, m, "user2", 11111)
 			}
 
-			//nolint:gosec // G115 we set the GID above to values that are valid uint32
-			resp, err := m.SetGroupID(groupname, uint32(newGID))
+			resp, err := m.SetGroupID(groupname, uint32FromInt(t, newGID, "GID"))
 			log.Infof(context.Background(), "SetGroupID error: %v", err)
 			log.Infof(context.Background(), "SetGroupID resp: %v", resp)
 
@@ -405,7 +414,7 @@ func setUID(t *testing.T, m *users.Manager, username string, uid int) {
 		require.Fail(t, "Setup: invalid UID %d", uid)
 	}
 
-	err := m.DB().SetUserID(username, uint32(uid))
+	err := m.DB().SetUserID(username, uint32FromInt(t, uid, "UID"))
 	require.NoError(t, err, "Setup: could not set user ID")
 }
 
@@ -416,7 +425,7 @@ func setGID(t *testing.T, m *users.Manager, groupname string, gid int) {
 		require.Fail(t, "Setup: invalid GID %d", gid)
 	}
 
-	_, err := m.DB().SetGroupID(groupname, uint32(gid))
+	_, err := m.DB().SetGroupID(groupname, uint32FromInt(t, gid, "GID"))
 	require.NoError(t, err, "Setup: could not set group ID")
 }
 

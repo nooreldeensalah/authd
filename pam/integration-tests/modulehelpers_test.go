@@ -16,6 +16,7 @@ import (
 func getPkgConfigFlags(t *testing.T, args []string) []string {
 	t.Helper()
 
+	// #nosec G204 -- pkg-config is fixed and the flag list is assembled by the test.
 	out, err := exec.Command("pkg-config", args...).CombinedOutput()
 	require.NoError(t, err, "Can't run pkg-config: %s", out)
 	return strings.Split(strings.TrimSpace(string(out)), " ")

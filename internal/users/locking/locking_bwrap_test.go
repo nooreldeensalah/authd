@@ -239,6 +239,7 @@ func TestLockingLockedDatabase(t *testing.T) {
 	require.NoError(t, err, "Writing group file")
 
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	//nolint:gosec // G204 It's fine to pass variables to exec.Command here'
 	cmd := exec.CommandContext(ctx, testLockerUtility)
 	t.Logf("Running command: %s", cmd.Args)
@@ -315,6 +316,7 @@ func TestLockingLockedDatabaseFailsAfterTimeout(t *testing.T) {
 	require.NotEmpty(t, testLockerUtility, "Setup: Locker utility unset")
 
 	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 	//nolint:gosec // G204 It's fine to pass variables to exec.Command here'
 	cmd := exec.CommandContext(ctx, testLockerUtility)
 	t.Logf("Running command: %s", cmd.Args)
@@ -444,7 +446,17 @@ func TestLockingLockedDatabaseWorksAfterUnlock(t *testing.T) {
 func runCmd(t *testing.T, command string, args ...string) (string, error) {
 	t.Helper()
 
-	cmd := exec.Command(command, args...)
+	var cmd *exec.Cmd
+	switch command {
+	case "getent":
+		//nolint:gosec // G204 the command is fixed and only test-controlled arguments vary.
+		cmd = exec.Command("getent", args...)
+	case "gpasswd":
+		//nolint:gosec // G204 the command is fixed and only test-controlled arguments vary.
+		cmd = exec.Command("gpasswd", args...)
+	default:
+		require.FailNowf(t, "Setup: unsupported command", "unsupported command %q", command)
+	}
 	cmd.Env = append(os.Environ(), "LANG=C", "LC_ALL=C")
 
 	t.Logf("Running command: %s", strings.Join(cmd.Args, " "))
