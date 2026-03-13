@@ -1,0 +1,135 @@
+#cloud-config
+# authd Development Environment - Cloud-Init Configuration
+# This file is used by dev-env.sh to provision LXD containers.
+# Placeholder __SSH_PUBLIC_KEY__ is replaced at launch time.
+
+ssh_authorized_keys:
+  - __SSH_PUBLIC_KEY__
+
+package_update: true
+package_upgrade: false
+
+packages:
+  # Build dependencies (from debian/control)
+  - protobuf-compiler
+  - pkgconf
+  - gcc
+  - make
+  - git
+  # C/system development libraries
+  - libpam0g-dev
+  - libglib2.0-dev
+  - libpwquality-dev
+  - libc6-dev
+  - libssl-dev
+  - systemd-dev
+  # Debian packaging tools
+  - devscripts
+  - debhelper
+  - dh-golang
+  - dh-cargo
+  - dh-exec
+  - dh-apport
+  - dctrl-tools
+  # Test dependencies (from .github/workflows/qa.yaml)
+  - bubblewrap
+  - cracklib-runtime
+  - dbus
+  - openssh-server
+  - openssh-client
+  - apparmor-profiles
+  # Utilities
+  - curl
+  - wget
+  - jq
+  - vim
+  - tree
+  - ripgrep
+  - htop
+  - software-properties-common
+
+write_files:
+  # SSH config for authd PAM testing (matches e2e-tests/vm/cloud-init-template)
+  - path: /etc/ssh/sshd_config.d/authd.conf
+    owner: root:root
+    permissions: "0644"
+    content: |
+      UsePAM yes
+      Match User *@*
+          KbdInteractiveAuthentication yes
+
+  # PATH setup for Go and Rust toolchains
+  - path: /etc/profile.d/authd-dev.sh
+    owner: root:root
+    permissions: "0644"
+    content: |
+      # Go (installed to /usr/local/go from go.dev)
+      export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH"
+      export GOPATH="$HOME/go"
+      # Rust (rustup, installed per-user)
+      if [ -d "$HOME/.cargo/bin" ]; then
+        export PATH="$HOME/.cargo/bin:$PATH"
+      fi
+
+runcmd:
+  # --- Install Go from go.dev ---
+  # Noble ships Go 1.22; authd requires Go 1.25+ (see go.mod).
+  # Install directly from go.dev to /usr/local/go, matching CI behavior.
+  - |
+    set -e
+    GO_VERSION="1.25.7"
+    ARCH=$(dpkg --print-architecture)
+    case "$ARCH" in
+      amd64) GO_ARCH="amd64" ;;
+      arm64) GO_ARCH="arm64" ;;
+      *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+    esac
+    echo "Installing Go ${GO_VERSION} (${GO_ARCH})..."
+    wget -q "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" -O /tmp/go.tar.gz
+    rm -rf /usr/local/go
+    tar -C /usr/local -xzf /tmp/go.tar.gz
+    rm -f /tmp/go.tar.gz
+    echo "Go installed: $(/usr/local/go/bin/go version)"
+
+  # --- Install Rust via rustup (for ubuntu user) ---
+  # Noble ships Rust 1.75; the NSS crate needs stable >= 1.82.
+  - |
+    set -e
+    su - ubuntu -c 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable'
+    su - ubuntu -c '. "$HOME/.cargo/env" && echo "Rust: $(rustc --version), $(cargo --version)"'
+
+  # --- Install cargo-vendor-filterer (needed for Debian packaging) ---
+  - su - ubuntu -c '. "$HOME/.cargo/env" && cargo install cargo-vendor-filterer'
+
+  # --- Install Go protobuf tools ---
+  # These are required for `go generate` on the proto files.
+  # See CONTRIBUTING.md: cd tools/ && go install ...
+  - |
+    export PATH="/usr/local/go/bin:/home/ubuntu/go/bin:$PATH"
+    export GOPATH="/home/ubuntu/go"
+    export HOME="/home/ubuntu"
+    if [ -d /workspace/authd/tools ]; then
+      su - ubuntu -c 'export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH" && cd /workspace/authd/tools && go install $(grep -o "_ \".*\"" *.go | cut -d "\"" -f 2)'
+      echo "Go protobuf tools installed"
+    else
+      echo "WARN: /workspace/authd not mounted yet, skipping Go tool install"
+    fi
+
+  # --- AppArmor bubblewrap profile (required by tests) ---
+  # See .github/actions/setup-go-tests/action.yaml
+  - |
+    if [ -f /usr/share/apparmor/extra-profiles/bwrap-userns-restrict ]; then
+      ln -sf /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /etc/apparmor.d/
+      apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict 2>/dev/null || true
+      echo "AppArmor bubblewrap profile loaded"
+    fi
+
+  # --- Increase LOGIN_TIMEOUT for PAM testing ---
+  # Matches e2e-tests/vm/cloud-init-template
+  - sed -i 's/^LOGIN_TIMEOUT.*/LOGIN_TIMEOUT 360/' /etc/login.defs
+
+  # --- Restart SSH to pick up authd PAM config ---
+  - systemctl restart ssh
+
+  # --- Done ---
+  - echo "=== authd development environment provisioning complete ==="
